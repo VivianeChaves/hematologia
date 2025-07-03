@@ -38,8 +38,8 @@
             overflow: hidden;
             transition: max-height 0.5s ease-out, padding 0.5s ease-out;
         }
+        /* Removed fixed max-height here to allow JS to control it fully based on scrollHeight */
         .accordion-button.active + .accordion-content {
-            max-height: 500px;
             padding-top: 1rem;
             padding-bottom: 1rem;
         }
