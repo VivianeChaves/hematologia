@@ -34,14 +34,15 @@
             box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -2px rgb(0 0 0 / 0.1);
         }
         .accordion-content {
-            max-height: 0;
+            max-height: 0; /* Collapsed state */
             overflow: hidden;
             transition: max-height 0.5s ease-out, padding 0.5s ease-out;
         }
-        /* Removed fixed max-height here to allow JS to control it fully based on scrollHeight */
-        .accordion-button.active + .accordion-content {
+        .symptom-card.active .accordion-content { /* When the parent card is active */
+            max-height: 500px; /* A sufficiently large value to contain all text */
             padding-top: 1rem;
             padding-bottom: 1rem;
+            overflow: visible; /* Allow content to be fully visible */
         }
         .chart-container {
             position: relative;
@@ -263,14 +264,7 @@
     <script>
         function toggleSymptomInfo(element) {
             element.classList.toggle('active');
-            const content = element.querySelector('.accordion-content');
-            if (content.style.maxHeight) {
-                content.style.maxHeight = null;
-                content.style.padding = "0";
-            } else {
-                content.style.maxHeight = content.scrollHeight + "px";
-                content.style.padding = "0.5rem 0";
-            }
+            // No need to manually set max-height in JS anymore, CSS handles it
         }
 
         const accordionButtons = document.querySelectorAll('.accordion-button');
