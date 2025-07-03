@@ -38,11 +38,18 @@
             overflow: hidden;
             transition: max-height 0.5s ease-out, padding 0.5s ease-out;
         }
-        .symptom-card.active .accordion-content { /* When the parent card is active */
+        .symptom-card.active .accordion-content { /* For Item 2 symptom cards */
             max-height: 500px; /* A sufficiently large value to contain all text */
             padding-top: 1rem;
             padding-bottom: 1rem;
             overflow: visible; /* Allow content to be fully visible */
+        }
+        /* New style for Item 5 accordions */
+        .accordion-content.active-accordion-content {
+            max-height: 500px; /* Sufficiently large value for expansion */
+            padding-top: 1rem;
+            padding-bottom: 1rem;
+            overflow: visible;
         }
         .chart-container {
             position: relative;
@@ -302,7 +309,9 @@
         const accordionButtons = document.querySelectorAll('.accordion-button');
         accordionButtons.forEach(button => {
             button.addEventListener('click', () => {
-                button.classList.toggle('active');
+                const content = button.nextElementSibling; // Get the .accordion-content sibling
+                // Toggle the specific class for accordion content
+                content.classList.toggle('active-accordion-content'); 
             });
         });
 
