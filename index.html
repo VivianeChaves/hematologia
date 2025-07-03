@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Caso Clínico Interativo: Anemia Ferropriva</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Clinical Calm -->
+    <!-- Application Structure Plan: A guided, multi-stage interactive clinical case walkthrough. The structure follows a logical clinical workflow: 1. Case Presentation, 2. Interactive Symptom Exploration, 3. Diagnostic Phase with Lab Chart Visualization, 4. Interactive Prescription Pad for Treatment, 5. Accordion-style Patient Counseling, 6. Visual Follow-up Timeline. This task-oriented structure was chosen over a static report to actively engage the user, enhance learning and retention by making them "solve" the case step-by-step, directly addressing their need for a practical, case-based learning tool. -->
+    <!-- Visualization & Content Choices: Case Intro -> Inform -> HTML Text -> Basic context setting. Symptoms -> Organize/Inform -> Interactive HTML/JS Cards -> Breaks down complex info, encourages exploration. Lab Results -> Compare -> Chart.js Bar Chart -> Visually impactful comparison of patient data vs. normal ranges, clearer than a table. Prescription -> Engage/Inform -> Interactive HTML/JS 'Prescription Pad' -> Turns passive reading of posology into an active task, reinforcing dosage calculation. Patient Counseling -> Organize -> HTML/JS Accordion -> Prevents information overload, presents advice in digestible chunks. Follow-up -> Show Change -> HTML/CSS Timeline -> Simple visual guide for treatment duration. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8f9fa;
+        }
+        .step-card {
+            background-color: white;
+            border-radius: 0.75rem;
+            border: 1px solid #e5e7eb;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            transition: all 0.3s ease-in-out;
+        }
+        .symptom-card {
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .symptom-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -2px rgb(0 0 0 / 0.1);
+        }
+        .accordion-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.5s ease-out, padding 0.5s ease-out;
+        }
+        .accordion-button.active + .accordion-content {
+            max-height: 500px;
+            padding-top: 1rem;
+            padding-bottom: 1rem;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 300px;
+            max-height: 400px;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 350px;
+            }
+        }
+        .prescription-pad {
+            background-color: #fffbeb;
+            border-left: 4px solid #facc15;
+        }
+        .timeline {
+            position: relative;
+            width: 100%;
+            padding-top: 20px;
+            padding-bottom: 20px;
+        }
+        .timeline::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background-color: #d1d5db;
+            transform: translateY(-50%);
+        }
+        .timeline-item {
+            position: relative;
+            width: 33.33%;
+        }
+        .timeline-dot {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 24px;
+            height: 24px;
+            background-color: #3b82f6;
+            border-radius: 9999px;
+            border: 4px solid #f8f9fa;
+        }
+        .timeline-content {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body class="text-gray-800">
+
+    <div class="container mx-auto p-4 md:p-8 max-w-5xl">
+
+        <header class="text-center mb-12">
+            <h1 class="text-4xl md:text-5xl font-bold text-gray-900 mb-2">Caso Clínico Interativo</h1>
+            <p class="text-xl text-gray-600">Anemia por Deficiência de Ferro</p>
+        </header>
+
+        <!-- Step 1: Apresentação do Caso -->
+        <section id="step-1" class="step-card p-6 md:p-8 mb-8">
+            <div class="flex items-center mb-4">
+                <div class="bg-blue-100 text-blue-600 rounded-full h-10 w-10 flex items-center justify-center font-bold text-xl mr-4">1</div>
+                <h2 class="text-2xl font-bold">Apresentação do Caso</h2>
+            </div>
+            <div class="space-y-4 text-lg text-gray-700">
+                <p>Uma paciente de 34 anos, advogada, procura atendimento médico com queixa de <strong class="text-blue-600">cansaço progressivo</strong> há cerca de 8 meses. Relata que se sente exausta ao final do dia, com <strong class="text-blue-600">dificuldade de concentração</strong> e diminuição do rendimento no trabalho.</p>
+                <p>Além disso, notou uma <strong class="text-blue-600">queda de cabelo</strong> acentuada e suas <strong class="text-blue-600">unhas estão fracas e quebradiças</strong>. Menciona também sentir <strong class="text-blue-600">palpitações</strong> ocasionais ao subir escadas.</p>
+                <div class="p-4 bg-gray-50 rounded-lg">
+                    <h3 class="font-semibold text-gray-800">Histórico e Exame Físico:</h3>
+                    <ul class="list-disc list-inside mt-2 space-y-1">
+                        <li>Gesta 2, Para 2 (partos normais).</li>
+                        <li>Refere ciclos menstruais com fluxo muito intenso (menorragia).</li>
+                        <li>Dieta com baixo consumo de carne vermelha.</li>
+                        <li>Ao exame: Palidez cutâneo-mucosa (+/4+), Frequência Cardíaca de 98 bpm.</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- Step 2: Análise dos Sinais e Sintomas -->
+        <section id="step-2" class="step-card p-6 md:p-8 mb-8">
+            <div class="flex items-center mb-6">
+                <div class="bg-blue-100 text-blue-600 rounded-full h-10 w-10 flex items-center justify-center font-bold text-xl mr-4">2</div>
+                <h2 class="text-2xl font-bold">Análise dos Sinais e Sintomas</h2>
+            </div>
+            <p class="mb-6 text-lg text-gray-700">Clique em cada sintoma para entender a sua causa fisiopatológica na deficiência de ferro.</p>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <!-- Cards de Sintomas -->
+                <div class="symptom-card p-4 bg-blue-50 rounded-lg border border-blue-200" onclick="toggleSymptomInfo(this)">
+                    <h3 class="font-semibold text-blue-800 text-lg">Fadiga e Dificuldade de Concentração</h3>
+                    <div class="accordion-content text-blue-900 text-sm">A falta de ferro reduz a produção de hemoglobina, diminuindo o transporte de oxigénio para os tecidos e cérebro. O ferro também é crucial para enzimas do metabolismo energético e para a síntese de neurotransmissores.</div>
+                </div>
+                <div class="symptom-card p-4 bg-blue-50 rounded-lg border border-blue-200" onclick="toggleSymptomInfo(this)">
+                    <h3 class="font-semibold text-blue-800 text-lg">Queda de Cabelo e Unhas Frágeis</h3>
+                    <div class="accordion-content text-blue-900 text-sm">Cabelos e unhas são tecidos de alta proliferação celular. A deficiência de ferro compromete o suprimento de oxigénio e a síntese de proteínas estruturais (queratina), causando fragilidade.</div>
+                </div>
+                <div class="symptom-card p-4 bg-blue-50 rounded-lg border border-blue-200" onclick="toggleSymptomInfo(this)">
+                    <h3 class="font-semibold text-blue-800 text-lg">Palpitações e Palidez</h3>
+                    <div class="accordion-content text-blue-900 text-sm">A palidez ocorre pela baixa hemoglobina. As palpitações são uma resposta do coração, que acelera para tentar compensar a baixa capacidade de transporte de oxigénio do sangue.</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Step 3: Investigação Diagnóstica -->
+        <section id="step-3" class="step-card p-6 md:p-8 mb-8">
+            <div class="flex items-center mb-4">
+                <div class="bg-blue-100 text-blue-600 rounded-full h-10 w-10 flex items-center justify-center font-bold text-xl mr-4">3</div>
+                <h2 class="text-2xl font-bold">Investigação Diagnóstica</h2>
+            </div>
+            <p class="mb-6 text-lg text-gray-700">Para confirmar a suspeita, foram solicitados exames laboratoriais. Veja os resultados em comparação com os valores de referência.</p>
+            <div class="chart-container">
+                <canvas id="labResultsChart"></canvas>
+            </div>
+            <div class="mt-6 p-4 bg-gray-50 rounded-lg text-center">
+                <p class="font-semibold text-gray-800">Diagnóstico Confirmado:</p>
+                <p class="text-lg text-blue-600">Anemia Ferropriva microcítica e hipocrômica, evidenciada pela baixa Hemoglobina, VCM e Ferritina.</p>
+            </div>
+        </section>
+
+        <!-- Step 4: Plano Terapêutico -->
+        <section id="step-4" class="step-card p-6 md:p-8 mb-8">
+            <div class="flex items-center mb-4">
+                <div class="bg-blue-100 text-blue-600 rounded-full h-10 w-10 flex items-center justify-center font-bold text-xl mr-4">4</div>
+                <h2 class="text-2xl font-bold">Plano Terapêutico</h2>
+            </div>
+            <p class="mb-6 text-lg text-gray-700">O tratamento de escolha é a reposição oral de ferro. Monte a prescrição para a paciente, selecionando o número de comprimidos diários para atingir a dose alvo de 100-200 mg de ferro elementar.</p>
+            
+            <div class="prescription-pad p-6 rounded-lg">
+                <h3 class="text-xl font-semibold text-yellow-800">Receituário</h3>
+                <p class="text-yellow-700 mb-4">Medicamento: Sulfato Ferroso (comprimidos com 40 mg de ferro elementar cada).</p>
+                
+                <div class="flex items-center justify-center space-x-4 my-4">
+                    <button id="decrease-btn" class="bg-blue-500 text-white rounded-full h-10 w-10 text-2xl font-bold flex items-center justify-center shadow-md">-</button>
+                    <span id="pills-count" class="text-3xl font-bold text-gray-900 w-16 text-center">3</span>
+                    <button id="increase-btn" class="bg-blue-500 text-white rounded-full h-10 w-10 text-2xl font-bold flex items-center justify-center shadow-md">+</button>
+                </div>
+                <p class="text-center text-lg font-medium">Comprimido(s) por dia</p>
+                <div class="text-center mt-4 p-3 bg-white rounded-lg shadow-inner">
+                    <p class="text-gray-600">Dose total de ferro elementar:</p>
+                    <p id="total-dose" class="text-2xl font-bold text-blue-600">120 mg/dia</p>
+                </div>
+                 <div id="prescription-feedback" class="mt-4 text-center font-medium text-green-700">Dose terapêutica adequada.</div>
+            </div>
+        </section>
+
+        <!-- Step 5: Orientações ao Paciente -->
+        <section id="step-5" class="step-card p-6 md:p-8 mb-8">
+             <div class="flex items-center mb-4">
+                <div class="bg-blue-100 text-blue-600 rounded-full h-10 w-10 flex items-center justify-center font-bold text-xl mr-4">5</div>
+                <h2 class="text-2xl font-bold">Orientações à Paciente</h2>
+            </div>
+            <div class="space-y-2">
+                <div class="border border-gray-200 rounded-lg">
+                    <button class="accordion-button w-full p-4 text-left font-semibold text-lg flex justify-between items-center">
+                        <span>Como e Quando Tomar?</span> <span>&#9660;</span>
+                    </button>
+                    <div class="accordion-content px-4 text-gray-700">
+                        <p>Tomar o(s) comprimido(s) com estômago vazio (1h antes ou 2h após refeições) com suco de frutas cítricas (laranja, limão) para maximizar a absorção.</p>
+                    </div>
+                </div>
+                <div class="border border-gray-200 rounded-lg">
+                     <button class="accordion-button w-full p-4 text-left font-semibold text-lg flex justify-between items-center">
+                        <span>O que Evitar?</span> <span>&#9660;</span>
+                    </button>
+                    <div class="accordion-content px-4 text-gray-700">
+                        <p>Evitar consumir junto com leite, laticínios, chás, café, ovos e cereais integrais, pois eles podem diminuir a absorção do ferro.</p>
+                    </div>
+                </div>
+                <div class="border border-gray-200 rounded-lg">
+                     <button class="accordion-button w-full p-4 text-left font-semibold text-lg flex justify-between items-center">
+                        <span>Efeitos Colaterais</span> <span>&#9660;</span>
+                    </button>
+                    <div class="accordion-content px-4 text-gray-700">
+                        <p>São comuns náuseas, dor abdominal, constipação e fezes escuras. As fezes escuras são normais e esperadas. Se os sintomas gástricos forem intensos, comunique seu médico.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Step 6: Duração do Tratamento e Acompanhamento -->
+        <section id="step-6" class="step-card p-6 md:p-8">
+            <div class="flex items-center mb-4">
+                <div class="bg-blue-100 text-blue-600 rounded-full h-10 w-10 flex items-center justify-center font-bold text-xl mr-4">6</div>
+                <h2 class="text-2xl font-bold">Acompanhamento</h2>
+            </div>
+            <p class="mb-8 text-lg text-gray-700">O tratamento tem dois objetivos principais: corrigir a anemia e, em seguida, repor os estoques de ferro do corpo para prevenir a recorrência.</p>
+            <div class="timeline flex justify-between text-center">
+                <div class="timeline-item">
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-content">
+                        <h3 class="font-semibold text-lg">Fase 1: Correção</h3>
+                        <p class="text-sm text-gray-600">Normalização da Hemoglobina (geralmente em 4-6 semanas).</p>
+                    </div>
+                </div>
+                <div class="timeline-item">
+                     <div class="timeline-dot"></div>
+                    <div class="timeline-content">
+                        <h3 class="font-semibold text-lg">Fase 2: Reposição</h3>
+                        <p class="text-sm text-gray-600">Continuação do tratamento por mais 3-6 meses para encher os estoques de ferro.</p>
+                    </div>
+                </div>
+                <div class="timeline-item">
+                     <div class="timeline-dot"></div>
+                    <div class="timeline-content">
+                        <h3 class="font-semibold text-lg">Fase 3: Manutenção</h3>
+                        <p class="text-sm text-gray-600">Investigar e tratar a causa base (ex: menorragia) para evitar nova deficiência.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        function toggleSymptomInfo(element) {
+            element.classList.toggle('active');
+            const content = element.querySelector('.accordion-content');
+            if (content.style.maxHeight) {
+                content.style.maxHeight = null;
+                content.style.padding = "0";
+            } else {
+                content.style.maxHeight = content.scrollHeight + "px";
+                content.style.padding = "0.5rem 0";
+            }
+        }
+
+        const accordionButtons = document.querySelectorAll('.accordion-button');
+        accordionButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                button.classList.toggle('active');
+            });
+        });
+
+        const ctx = document.getElementById('labResultsChart').getContext('2d');
+        const labResultsChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ['Hemoglobina (g/dL)', 'VCM (fL)', 'Ferritina (ng/mL)'],
+                datasets: [{
+                    label: 'Resultado da Paciente',
+                    data: [9.5, 75, 10],
+                    backgroundColor: 'rgba(59, 130, 246, 0.7)',
+                    borderColor: 'rgba(59, 130, 246, 1)',
+                    borderWidth: 1
+                }, {
+                    label: 'Valor Mínimo de Referência',
+                    data: [12.0, 80, 30],
+                    backgroundColor: 'rgba(239, 68, 68, 0.5)',
+                    borderColor: 'rgba(239, 68, 68, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                maintainAspectRatio: false,
+                responsive: true,
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'Resultados Laboratoriais da Paciente',
+                        font: { size: 16 }
+                    },
+                    tooltip: {
+                         callbacks: {
+                            label: function(context) {
+                                let label = context.dataset.label || '';
+                                if (label) {
+                                    label += ': ';
+                                }
+                                if (context.parsed.y !== null) {
+                                    label += context.parsed.y;
+                                }
+                                return label;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+
+        const decreaseBtn = document.getElementById('decrease-btn');
+        const increaseBtn = document.getElementById('increase-btn');
+        const pillsCountSpan = document.getElementById('pills-count');
+        const totalDoseSpan = document.getElementById('total-dose');
+        const feedbackSpan = document.getElementById('prescription-feedback');
+        let pills = 3;
+
+        function updatePrescription() {
+            pillsCountSpan.textContent = pills;
+            const totalDose = pills * 40;
+            totalDoseSpan.textContent = `${totalDose} mg/dia`;
+            
+            if (totalDose < 100) {
+                feedbackSpan.textContent = "Dose subterapêutica. Aumente a dose.";
+                feedbackSpan.className = "mt-4 text-center font-medium text-red-700";
+            } else if (totalDose > 200) {
+                feedbackSpan.textContent = "Dose acima do recomendado. Considere reduzir.";
+                feedbackSpan.className = "mt-4 text-center font-medium text-yellow-700";
+            } else {
+                feedbackSpan.textContent = "Dose terapêutica adequada.";
+                feedbackSpan.className = "mt-4 text-center font-medium text-green-700";
+            }
+        }
+
+        decreaseBtn.addEventListener('click', () => {
+            if (pills > 1) {
+                pills--;
+                updatePrescription();
+            }
+        });
+
+        increaseBtn.addEventListener('click', () => {
+            if (pills < 10) {
+                pills++;
+                updatePrescription();
+            }
+        });
+
+        updatePrescription();
+    </script>
+
+</body>
+</html>
