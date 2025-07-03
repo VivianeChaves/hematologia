@@ -67,11 +67,15 @@
             width: 100%;
             padding-top: 20px;
             padding-bottom: 20px;
+            height: 180px; /* Fixed height for the timeline container */
+            display: flex; /* Ensure the main timeline is a flex container */
+            justify-content: space-between;
+            text-align: center;
         }
         .timeline::before {
             content: '';
             position: absolute;
-            top: 50%;
+            top: 50%; /* Center the line vertically within the timeline container */
             left: 0;
             width: 100%;
             height: 4px;
@@ -80,11 +84,16 @@
         }
         .timeline-item {
             position: relative;
-            width: 33.33%;
+            width: 50%; /* Adjusted for 2 items */
+            height: 100%; /* Take full height of the timeline container */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-end; /* Push content to the bottom of the item */
         }
         .timeline-dot {
             position: absolute;
-            top: 50%;
+            top: 50%; /* Position dot on the main timeline line */
             left: 50%;
             transform: translate(-50%, -50%);
             width: 24px;
@@ -92,9 +101,18 @@
             background-color: #3b82f6;
             border-radius: 9999px;
             border: 4px solid #f8f9fa;
+            z-index: 1; /* Ensure dot is above the line */
         }
         .timeline-content {
-            margin-top: 20px;
+            position: absolute; /* Position content absolutely within the item */
+            bottom: calc(50% + 20px); /* Place content above the dot, with 20px gap */
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100%; /* Take full width of item */
+            max-width: 200px; /* Limit text width to prevent overlap with other items */
+            text-align: center;
+            padding: 0 5px; /* Small padding to prevent text touching edges */
+            box-sizing: border-box; /* Include padding in width calculation */
         }
     </style>
 </head>
@@ -166,6 +184,22 @@
                 <p class="font-semibold text-gray-800">Diagnóstico Confirmado:</p>
                 <p class="text-lg text-blue-600">Anemia Ferropriva microcítica e hipocrômica, evidenciada pela baixa Hemoglobina, VCM e Ferritina.</p>
             </div>
+            <div class="mt-6 p-4 bg-gray-50 rounded-lg">
+                <h3 class="font-semibold text-gray-800 mb-2">Detalhes dos Exames e Achados Adicionais:</h3>
+                <ul class="list-disc list-inside space-y-1 text-gray-700">
+                    <li>Hemograma Completo:
+                        <ul class="list-circle list-inside ml-4">
+                            <li>Hemoglobina (Hb) e Hematócrito (Ht) diminuídos: Confirmam a anemia.</li>
+                            <li>Volume Corpuscular Médio (VCM) diminuído (&lt;80 fL): Indica microcitose.</li>
+                            <li>Hemoglobina Corpuscular Média (HCM) diminuída (&lt;27 pg): Indica hipocromia.</li>
+                            <li>Amplitude de Distribuição dos Glóbulos Vermelhos (RDW) aumentada: Reflete anisocitose (variação no tamanho das hemácias), um achado comum e precoce.</li>
+                            <li>Plaquetose (aumento das plaquetas): Pode estar associada à anemia ferropriva, sendo um achado reativo à deficiência de ferro.</li>
+                        </ul>
+                    </li>
+                    <li>Ferritina Sérica: Melhor indicador dos estoques de ferro. Níveis diminuídos (&lt;30 ng/mL) são altamente sugestivos.</li>
+                    <li>Índice de Saturação da Transferrina (IST): Calculado a partir do Ferro Sérico e CTLF/TIBC. Um IST diminuído (&lt;20%) é um forte indicador de deficiência de ferro, pois há pouco ferro para se ligar à transferrina.</li>
+                </ul>
+            </div>
         </section>
 
         <!-- Step 4: Plano Terapêutico -->
@@ -176,7 +210,7 @@
             </div>
             <p class="mb-6 text-lg text-gray-700">O tratamento de escolha é a reposição oral de ferro. Monte a prescrição para a paciente, selecionando o número de comprimidos diários para atingir a dose alvo de 100-200 mg de ferro elementar.</p>
             
-            <div class="prescription-pad p-6 rounded-lg">
+            <div class="prescription-pad p-6 rounded-lg mb-6">
                 <h3 class="text-xl font-semibold text-yellow-800">Receituário</h3>
                 <p class="text-yellow-700 mb-4">Medicamento: Sulfato Ferroso (comprimidos com 40 mg de ferro elementar cada).</p>
                 
@@ -192,6 +226,11 @@
                 </div>
                  <div id="prescription-feedback" class="mt-4 text-center font-medium text-green-700">Dose terapêutica adequada.</div>
             </div>
+
+            <div class="p-4 bg-yellow-50 rounded-lg border-l-4 border-yellow-400 text-yellow-800">
+                <h3 class="font-bold text-lg mb-2">⚠ Importante: Investigação da Causa Base</h3>
+                <p class="text-base">É crucial que, **imediatamente com o início do tratamento com ferro**, seja iniciada a investigação da causa subjacente da deficiência de ferro (neste caso, a menorragia e o baixo consumo de carne vermelha). O tratamento da anemia é sintomático, mas a correção da causa é fundamental para prevenir a recorrência.</p>
+            </div>
         </section>
 
         <!-- Step 5: Orientações ao Paciente -->
@@ -206,7 +245,7 @@
                         <span>Como e Quando Tomar?</span> <span>&#9660;</span>
                     </button>
                     <div class="accordion-content px-4 text-gray-700">
-                        <p>Tomar o(s) comprimido(s) com estômago vazio (1h antes ou 2h após refeições) com suco de frutas cítricas (laranja, limão) para maximizar a absorção.</p>
+                        <p>Tomar o(s) comprimido(s) com estômago vazio (1h antes ou 2h após refeições). O uso de suco de frutas cítricas (laranja, limão) é uma opção para maximizar a absorção.</p>
                     </div>
                 </div>
                 <div class="border border-gray-200 rounded-lg">
@@ -237,25 +276,18 @@
             <p class="mb-8 text-lg text-gray-700">O tratamento tem dois objetivos principais: corrigir a anemia e, em seguida, repor os estoques de ferro do corpo para prevenir a recorrência.</p>
             <div class="timeline flex justify-between text-center">
                 <div class="timeline-item">
-                    <div class="timeline-dot"></div>
                     <div class="timeline-content">
                         <h3 class="font-semibold text-lg">Fase 1: Correção</h3>
                         <p class="text-sm text-gray-600">Normalização da Hemoglobina (geralmente em 4-6 semanas).</p>
                     </div>
+                    <div class="timeline-dot"></div>
                 </div>
                 <div class="timeline-item">
-                     <div class="timeline-dot"></div>
-                    <div class="timeline-content">
+                     <div class="timeline-content">
                         <h3 class="font-semibold text-lg">Fase 2: Reposição</h3>
                         <p class="text-sm text-gray-600">Continuação do tratamento por mais 3-6 meses para encher os estoques de ferro.</p>
                     </div>
-                </div>
-                <div class="timeline-item">
-                     <div class="timeline-dot"></div>
-                    <div class="timeline-content">
-                        <h3 class="font-semibold text-lg">Fase 3: Manutenção</h3>
-                        <p class="text-sm text-gray-600">Investigar e tratar a causa base (ex: menorragia) para evitar nova deficiência.</p>
-                    </div>
+                    <div class="timeline-dot"></div>
                 </div>
             </div>
         </section>
